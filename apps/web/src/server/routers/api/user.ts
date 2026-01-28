@@ -3,6 +3,7 @@ import "@/server/allow-only-server";
 import { z } from "zod";
 
 import { apiResult, assert, descending, apiErr, when, apiOk } from "@/shared/common";
+import { MIN_HANDLE_LENGTH, MAX_HANDLE_LENGTH } from "@/shared/constants";
 
 import { procedure, router, protectedProcedure } from "@/server/trpc";
 import { logError, logRequest } from "@/server/serverCommon";
@@ -38,7 +39,9 @@ export const KnownDeviceSchema = z.object({
     name: z.string()
 });
 
-export const UserHandle = z.string().min(3).max(16);
+export { MIN_HANDLE_LENGTH, MAX_HANDLE_LENGTH };
+
+export const UserHandle = z.string().min(MIN_HANDLE_LENGTH).max(MAX_HANDLE_LENGTH);
 export const UserDisplayName = z.string().min(1).max(24);
 export const UserBio = z.string().max(160).default("");
 export const UserUrlList = z.array(z.url().max(64).min(1)).max(4); 
@@ -214,7 +217,7 @@ export default router({
         )
         .output(
             apiResult({
-                user: z.union([PublicUserSchema, UserSchema]).nullable()
+                user: z.union([UserSchema, PublicUserSchema]).nullable()
             })
         )
         .query(async (req) => {

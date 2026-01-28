@@ -1,3 +1,4 @@
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import Icon from "@hackclub/icons";
@@ -29,6 +30,7 @@ import { Bullet } from "@/client/components/ui/Bullet";
 import { TimeAgo } from "@/client/components/TimeAgo";
 import { CommentSection } from "@/client/components/CommentSection";
 import { PublishModal } from "@/client/components/ui/layout/PublishModal";
+import { Duration } from "@/client/components/Duration";
 
 export default function Page() {
   const router = useRouter();
@@ -352,7 +354,7 @@ export default function Page() {
       const result = await trpc.timelapse.delete.mutate({ id: timelapse.id });
 
       if (result.ok) {
-        router.reload();
+        router.push(`/user/@${timelapse.owner.handle}`);
       }
       else {
         setRegularError(`Failed to delete: ${result.error}`);
@@ -442,13 +444,13 @@ export default function Page() {
 
               <div className="text-secondary text-xl flex gap-x-3 text-nowrap flex-wrap">
                 <span>
-                  by { !timelapse ? <Skeleton /> : <span className="font-bold">@{timelapse.owner.displayName}</span> }
+                  by { !timelapse ? <Skeleton /> : <NextLink href={`/user/@${timelapse.owner.handle}`}><span className="font-bold">@{timelapse.owner.displayName}</span></NextLink> }
                 </span>
 
                 <Bullet />
 
-                <span>
-                  { !timelapse ? <Skeleton /> : <TimeAgo date={timelapse.createdAt} /> }
+                <span className="flex gap-1 sm:gap-2">
+                  { !timelapse ? <Skeleton /> : <><TimeAgo date={timelapse.createdAt} /> <Bullet/><Duration seconds={timelapse.duration}/> </>}
                 </span>
               </div>
             </div>
